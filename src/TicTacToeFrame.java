@@ -40,12 +40,36 @@ public class TicTacToeFrame extends JFrame {
             if (button.getText().equals(" ")) {
                 button.setText(currentPlayer);
                 moveCount++;
-                if (checkWin()) {
+                if (moveCount >= 5 && checkWin()) {
                     JOptionPane.showMessageDialog(null, "Player " + currentPlayer + " wins!");
-                    resetGame();
-                } else if (moveCount >= 9) {
-                    JOptionPane.showMessageDialog(null, "It's a tie!");
-                    resetGame();
+                    if (askToPlayAgain()) {
+                        resetGame();
+                    } else {
+                        System.exit(0);
+                    }
+                } else if (moveCount >= 7) {
+                    if (checkWin()) {
+                        JOptionPane.showMessageDialog(null, "Player " + currentPlayer + " wins!");
+                        if (askToPlayAgain()) {
+                            resetGame();
+                        } else {
+                            System.exit(0);
+                        }
+                    } else if (isBoardFull()) {
+                        JOptionPane.showMessageDialog(null, "It's a full board tie!");
+                        if (askToPlayAgain()) {
+                            resetGame();
+                        } else {
+                            System.exit(0);
+                        }
+                    } else if (!canWin()) {
+                        JOptionPane.showMessageDialog(null, "It's a tie! No possible moves left.");
+                        if (askToPlayAgain()) {
+                            resetGame();
+                        } else {
+                            System.exit(0);
+                        }
+                    }
                 } else {
                     currentPlayer = currentPlayer.equals("X") ? "O" : "X";
                 }
@@ -80,6 +104,32 @@ public class TicTacToeFrame extends JFrame {
             return true;
         }
         return false;
+    }
+
+    private boolean isBoardFull() {
+        return moveCount == 9; // The board is full if all 9 moves are made
+    }
+
+    private boolean canWin() {
+        // Check if there are any possible winning moves left
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                if (board[row][col].getText().equals(" ")) {
+                    board[row][col].setText(currentPlayer); // Temporarily set the move
+                    if (checkWin()) {
+                        board[row][col].setText(" "); // Reset the move
+                        return true; // A winning move is possible
+                    }
+                    board[row][col].setText(" "); // Reset the move
+                }
+            }
+        }
+        return false; // No winning moves possible
+    }
+
+    private boolean askToPlayAgain() {
+        int response = JOptionPane.showConfirmDialog(null, "Would you like to play again?", "Play Again", JOptionPane.YES_NO_OPTION);
+        return response == JOptionPane.YES_OPTION;
     }
 
     private void resetGame() {
